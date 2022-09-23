@@ -997,7 +997,8 @@ test "elliptic curve functions with secp384r1 curve" {
         var rand = blk: {
             var seed: [std.rand.DefaultCsprng.secret_seed_length]u8 = undefined;
             try std.os.getrandom(&seed);
-            break :blk std.rand.DefaultCsprng.init(seed).random();
+            var default_csprng = std.rand.DefaultCsprng.init(seed);
+            break :blk default_csprng.random();
         };
 
         // Derive a shared secret from a Diffie-Hellman key exchange

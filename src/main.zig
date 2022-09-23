@@ -919,7 +919,7 @@ pub const curves = struct {
     }
 
     fn KeyPair(comptime list: anytype) type {
-        var fields: [list.len]std.builtin.TypeInfo.UnionField = undefined;
+        var fields: [list.len]std.builtin.Type.UnionField = undefined;
         for (list) |curve, i| {
             fields[i] = .{
                 .name = curve.name,
@@ -932,7 +932,7 @@ pub const curves = struct {
                 .layout = .Extern,
                 .tag_type = null,
                 .fields = &fields,
-                .decls = &[0]std.builtin.TypeInfo.Declaration{},
+                .decls = &[0]std.builtin.Type.Declaration{},
             },
         });
     }
@@ -2050,7 +2050,8 @@ test "HTTPS request on twitch oath2 endpoint" {
     var rand = blk: {
         var seed: [std.rand.DefaultCsprng.secret_seed_length]u8 = undefined;
         try std.os.getrandom(&seed);
-        break :blk std.rand.DefaultCsprng.init(seed).random();
+        var default_csprng = std.rand.DefaultCsprng.init(seed);
+        break :blk default_csprng.random();
     };
 
     var client = try client_connect(.{
