@@ -4,6 +4,7 @@ const BigInt = std.math.big.int.Const;
 const mem = std.mem;
 const Allocator = mem.Allocator;
 const ArenaAllocator = std.heap.ArenaAllocator;
+const files = @import("self/files");
 
 // zig fmt: off
 pub const Tag = enum(u8) {
@@ -222,6 +223,10 @@ pub const der = struct {
         length: usize,
     };
 
+    fn isEnumLit(T: type) bool {
+        return @typeInfo(T) == .EnumLiteral;
+    }
+
     pub fn parse_schema_tag_len_internal(
         existing_tag_byte: ?u8,
         existing_length: ?usize,
@@ -231,7 +236,6 @@ pub const der = struct {
     ) !?TagLength {
         const Reader = @TypeOf(der_reader);
 
-        const isEnumLit = comptime is(.EnumLiteral);
         comptime var tag_idx = 0;
 
         const has_capture = comptime isEnumLit(@TypeOf(schema[tag_idx])) and schema[tag_idx] == .capture;
@@ -391,7 +395,7 @@ pub const der = struct {
         } else {
             const bytes_needed: u8 = @intCast(std.math.divCeil(usize, std.math.log2_int_ceil(usize, length), 8) catch unreachable);
             enc.data[0] = bytes_needed | 0x80;
-            mem.copy(u8, enc.data[1 .. bytes_needed + 1], mem.asBytes(&length)[0..bytes_needed]);
+            @memcpy(enc.data[1 .. bytes_needed + 1], mem.asBytes(&length)[0..bytes_needed]);
             if (builtin.target.cpu.arch.endian() != .big) {
                 mem.reverse(u8, enc.data[1 .. bytes_needed + 1]);
             }
@@ -623,7 +627,7 @@ fn is(comptime id: std.builtin.TypeId) fn (type) bool {
 }
 
 test "der.parse_value" {
-    const github_der = @embedFile("../test/github.der");
+    const github_der = files.@"/github.der";
     var fbs = std.io.fixedBufferStream(github_der);
 
     var arena = ArenaAllocator.init(std.testing.allocator);

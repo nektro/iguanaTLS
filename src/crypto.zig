@@ -176,9 +176,9 @@ pub fn ctr(
         var counter: [BlockCipher.block_length]u8 = undefined;
         mem.writeInt(u128, &counter, counterInt.*, endian);
         var pad = [_]u8{0} ** block_length;
-        mem.copy(u8, pad[offset..], src[0..part_len]);
+        std.mem.copyForwards(u8, pad[offset..], src[0..part_len]);
         block_cipher.xor(&pad, &pad, counter);
-        mem.copy(u8, dst[0..part_len], pad[offset..][0..part_len]);
+        @memcpy(dst[0..part_len], pad[offset..][0..part_len]);
         cur_idx += part_len;
         idx.* += part_len;
         if (idx.* % block_length == 0)
@@ -216,9 +216,9 @@ pub fn ctr(
         mem.writeInt(u128, &counter, counterInt.*, endian);
 
         var pad = [_]u8{0} ** block_length;
-        mem.copy(u8, &pad, src[start_idx..][cur_idx..]);
+        std.mem.copyForwards(u8, &pad, src[start_idx..][cur_idx..]);
         block_cipher.xor(&pad, &pad, counter);
-        mem.copy(u8, dst[start_idx..][cur_idx..], pad[0 .. remaining - cur_idx]);
+        std.mem.copyForwards(u8, dst[start_idx..][cur_idx..], pad[0 .. remaining - cur_idx]);
 
         idx.* += remaining - cur_idx;
         if (idx.* % block_length == 0)

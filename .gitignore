@@ -1,3 +1,6 @@
+/zig-out
 /zig-cache
 deps.zig
 gyro.lock
+zigmod.lock
+files.zig

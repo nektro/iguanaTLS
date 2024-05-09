@@ -2,8 +2,8 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 const mem = std.mem;
 const trait = std.meta.trait;
-
 const asn1 = @import("asn1.zig");
+const files = @import("self/files");
 
 // zig fmt: off
 // http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml#tls-parameters-8
@@ -649,7 +649,7 @@ fn PEMSectionReader(comptime Reader: type, comptime options: PEMSectionIteratorO
 
                 it.waiting_chars_len -= rest_written;
                 if (it.waiting_chars_len != 0) {
-                    std.mem.copy(u8, it.waiting_chars[0..], it.waiting_chars[rest_written..]);
+                    std.mem.copyForwards(u8, it.waiting_chars[0..], it.waiting_chars[rest_written..]);
                 }
 
                 if (out_idx == buf.len) {
@@ -713,7 +713,7 @@ fn PEMSectionReader(comptime Reader: type, comptime options: PEMSectionIteratorO
                     }
 
                     if (rest_chars > 0) {
-                        mem.copy(u8, &it.waiting_chars, res_buffer[i..]);
+                        mem.copyForwards(u8, &it.waiting_chars, res_buffer[i..]);
                         it.waiting_chars_len = @intCast(rest_chars);
                     }
                     if (out_idx == buf.len)
@@ -731,7 +731,7 @@ fn PEMSectionReader(comptime Reader: type, comptime options: PEMSectionIteratorO
 }
 
 const PEMSectionIteratorOptions = struct {
-    section_names: []const []const u8,
+    section_names: []const [:0]const u8,
     skip_irrelevant_lines: bool = false,
 };
 
@@ -899,8 +899,8 @@ pub const NameElement = struct {
     },
 };
 
-const github_pem = @embedFile("../test/github.pem");
-const github_der = @embedFile("../test/github.der");
+const github_pem = files.@"/github.pem";
+const github_der = files.@"/github.der";
 
 fn expected_pem_certificate_chain(bytes: []const u8, certs: []const []const u8) !void {
     var fbs = std.io.fixedBufferStream(bytes);

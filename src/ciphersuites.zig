@@ -188,7 +188,7 @@ pub const suites = struct {
             iv[4..].* = prefix_data;
 
             var j: [16]u8 = undefined;
-            mem.copy(u8, j[0..12], iv[0..]);
+            @memcpy(j[0..12], iv[0..]);
             mem.writeInt(u32, j[12..][0..4], 2, .big);
 
             return .{
@@ -433,7 +433,7 @@ pub fn InRecordState(comptime ciphersuites: anytype) type {
     }
     return @Type(.{
         .Union = .{
-            .layout = .Auto,
+            .layout = .auto,
             .tag_type = null,
             .fields = &fields,
             .decls = &[0]std.builtin.Type.Declaration{},

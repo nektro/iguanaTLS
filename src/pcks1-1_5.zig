@@ -22,7 +22,7 @@ fn rsa_perform(
         std.math.divCeil(usize, base.len, @sizeOf(usize)) catch unreachable,
     );
     const curr_base_limb_bytes = @as([*]u8, @ptrCast(curr_base_limbs))[0..base.len];
-    mem.copy(u8, curr_base_limb_bytes, base);
+    @memcpy(curr_base_limb_bytes, base);
     mem.reverse(u8, curr_base_limb_bytes);
     var curr_base = (std.math.big.int.Mutable{
         .limbs = curr_base_limbs,
