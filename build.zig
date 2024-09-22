@@ -6,19 +6,19 @@ pub fn build(b: *Builder) void {
     const target = b.standardTargetOptions(.{});
 
     _ = b.addModule("iguanaTLS", .{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
     });
 
     const lib = b.addStaticLibrary(.{
         .name = "iguanaTLS",
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = mode,
     });
     b.installArtifact(lib);
 
     const main_tests = b.addTest(.{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .optimize = mode,
     });
     main_tests.root_module.addImport("self/files", b.addModule("self/files", .{
