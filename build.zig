@@ -30,7 +30,7 @@ pub fn build(b: *Builder) void {
     main_tests.use_llvm = !disable_llvm;
     main_tests.use_lld = !disable_llvm;
 
-    const test_step = b.step("test", "Run library tests");
+    const test_step = b.step("test", "Run all library tests");
     const test_run = b.addRunArtifact(main_tests);
     test_step.dependOn(&test_run.step);
 }
