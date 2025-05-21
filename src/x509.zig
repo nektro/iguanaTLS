@@ -749,7 +749,7 @@ fn PEMSectionIterator(comptime Reader: type, comptime options: PEMSectionIterato
     }
 
     const StateEnum = @Type(.{
-        .Enum = .{
+        .@"enum" = .{
             .tag_type = u8,
             .fields = &fields,
             .decls = &.{},
@@ -928,8 +928,8 @@ test "pemCertificateIterator" {
         \\-----BEGIN BOGUS-----
         \\-----END BOGUS-----
         \\
-            ++
-            github_pem,
+    ++
+        github_pem,
         github_der,
     );
 

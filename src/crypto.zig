@@ -449,8 +449,8 @@ pub const ecc = struct {
         result &= decode_mod(Curve, &out.*[1], point[Curve.point_len / 2 ..].*);
 
         const zlen = comptime ((Curve.P[0] + 63) >> 5);
-        comptime std.debug.assert(zlen == @typeInfo(@TypeOf(Curve.R2)).Array.len);
-        comptime std.debug.assert(zlen == @typeInfo(@TypeOf(Curve.B)).Array.len);
+        comptime std.debug.assert(zlen == @typeInfo(@TypeOf(Curve.R2)).array.len);
+        comptime std.debug.assert(zlen == @typeInfo(@TypeOf(Curve.B)).array.len);
 
         const Q = comptime jacobian_with_one_set(Curve, [2][jacobian_len(Curve)]u32{ Curve.R2, Curve.B });
         result &= ~run_code(Curve, out, Q, &code.check);

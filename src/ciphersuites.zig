@@ -92,7 +92,7 @@ pub const suites = struct {
 
         pub fn raw_write(
             comptime buffer_size: usize,
-            rand: std.rand.Random,
+            rand: std.Random,
             key_data: anytype,
             writer: anytype,
             prefix: [3]u8,
@@ -175,7 +175,7 @@ pub const suites = struct {
 
         const Aes = std.crypto.core.aes.Aes128;
         pub const State = struct {
-            aes: @typeInfo(@TypeOf(Aes.initEnc)).Fn.return_type.?,
+            aes: @typeInfo(@TypeOf(Aes.initEnc)).@"fn".return_type.?,
             counterInt: u128,
         };
 
@@ -263,7 +263,7 @@ pub const suites = struct {
 
         pub fn raw_write(
             comptime buffer_size: usize,
-            rand: std.rand.Random,
+            rand: std.Random,
             key_data: anytype,
             writer: anytype,
             prefix: [3]u8,
@@ -308,7 +308,7 @@ fn key_field_width(comptime T: type, comptime field: anytype) ?usize {
         return null;
 
     const field_info = std.meta.fieldInfo(T, field);
-    return @typeInfo(field_info.type).Array.len;
+    return @typeInfo(field_info.type).array.len;
 }
 
 pub fn key_data_size(comptime ciphersuites: anytype) usize {
@@ -432,7 +432,7 @@ pub fn InRecordState(comptime ciphersuites: anytype) type {
         };
     }
     return @Type(.{
-        .Union = .{
+        .@"union" = .{
             .layout = .auto,
             .tag_type = null,
             .fields = &fields,

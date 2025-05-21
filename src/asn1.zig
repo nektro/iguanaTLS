@@ -224,7 +224,7 @@ pub const der = struct {
     };
 
     fn isEnumLit(T: type) bool {
-        return @typeInfo(T) == .EnumLiteral;
+        return @typeInfo(T) == .enum_literal;
     }
 
     pub fn parse_schema_tag_len_internal(

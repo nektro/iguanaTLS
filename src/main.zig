@@ -825,11 +825,11 @@ pub const curves = struct {
         const pub_key_len = 32;
         const Keys = std.crypto.dh.X25519.KeyPair;
 
-        inline fn make_key_pair(rand: std.rand.Random) Keys {
+        inline fn make_key_pair(rand: std.Random) Keys {
             while (true) {
                 var seed: [32]u8 = undefined;
                 rand.bytes(&seed);
-                return std.crypto.dh.X25519.KeyPair.create(seed) catch continue;
+                return std.crypto.dh.X25519.KeyPair.generateDeterministic(seed) catch continue;
             } else unreachable;
         }
 
@@ -852,7 +852,7 @@ pub const curves = struct {
         const pub_key_len = 97;
         const Keys = crypto.ecc.KeyPair(crypto.ecc.SECP384R1);
 
-        inline fn make_key_pair(rand: std.rand.Random) Keys {
+        inline fn make_key_pair(rand: std.Random) Keys {
             var seed: [48]u8 = undefined;
             rand.bytes(&seed);
             return crypto.ecc.make_key_pair(crypto.ecc.SECP384R1, seed);
@@ -878,7 +878,7 @@ pub const curves = struct {
         const pub_key_len = 65;
         const Keys = crypto.ecc.KeyPair(crypto.ecc.SECP256R1);
 
-        inline fn make_key_pair(rand: std.rand.Random) Keys {
+        inline fn make_key_pair(rand: std.Random) Keys {
             var seed: [32]u8 = undefined;
             rand.bytes(&seed);
             return crypto.ecc.make_key_pair(crypto.ecc.SECP256R1, seed);
@@ -912,7 +912,7 @@ pub const curves = struct {
     fn max_pre_master_secret_len(comptime list: anytype) usize {
         var max: usize = 0;
         for (list) |curve| {
-            const curr = @typeInfo(std.meta.fieldInfo(curve.Keys, .public_key).type).Array.len;
+            const curr = @typeInfo(std.meta.fieldInfo(curve.Keys, .public_key).type).array.len;
             if (curr > max)
                 max = curr;
         }
@@ -929,7 +929,7 @@ pub const curves = struct {
             };
         }
         return @Type(.{
-            .Union = .{
+            .@"union" = .{
                 .layout = .auto,
                 .tag_type = null,
                 .fields = &fields,
@@ -938,7 +938,7 @@ pub const curves = struct {
         });
     }
 
-    inline fn make_key_pair(comptime list: anytype, curve_id: u16, rand: std.rand.Random) KeyPair(list) {
+    inline fn make_key_pair(comptime list: anytype, curve_id: u16, rand: std.Random) KeyPair(list) {
         inline for (list) |curve| {
             if (curve.tag == curve_id) {
                 return @unionInit(KeyPair(list), curve.name, curve.make_key_pair(rand));
@@ -986,7 +986,7 @@ pub fn client_connect(
 ) {
     const Options = @TypeOf(options);
     if (@TypeOf(options.cert_verifier) != CertificateVerifier and
-        @TypeOf(options.cert_verifier) != @Type(.EnumLiteral))
+        @TypeOf(options.cert_verifier) != @Type(.enum_literal))
         @compileError("cert_verifier should be of type CertificateVerifier");
 
     if (!@hasField(Options, "temp_allocator"))
@@ -1380,11 +1380,11 @@ pub fn client_connect(
             const certificate_request_bytes = try hashing_reader.readInt(u24, .big);
             const hello_done_in_same_record =
                 if (length == certificate_request_bytes + 8)
-                true
-            else if (length != certificate_request_bytes)
-                false
-            else
-                return error.ServerMalformedResponse;
+                    true
+                else if (length != certificate_request_bytes)
+                    false
+                else
+                    return error.ServerMalformedResponse;
             // TODO: For now, we are ignoring the certificate types, as they have been somewhat
             // superceded by the supported_signature_algorithms field
             const certificate_types_bytes = try hashing_reader.readByte();
@@ -1501,7 +1501,7 @@ pub fn client_connect(
 
     inline for (curvelist) |curve| {
         if (curve.tag == curve_id) {
-            const actual_len = @typeInfo(std.meta.fieldInfo(curve.Keys, .public_key).type).Array.len;
+            const actual_len = @typeInfo(std.meta.fieldInfo(curve.Keys, .public_key).type).array.len;
             if (pub_key_len == actual_len + 1) {
                 try hashing_writer.writeByte(0x04);
             } else {
@@ -1753,7 +1753,7 @@ pub fn Client(
         server_seq: u64 = 1,
         key_data: ciphers.KeyData(_ciphersuites),
         read_state: ReadState = .none,
-        rand: std.rand.Random,
+        rand: std.Random,
 
         parent_reader: _Reader,
         parent_writer: _Writer,
