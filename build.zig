@@ -33,5 +33,6 @@ pub fn build(b: *Builder) void {
     const test_step = b.step("test", "Run all library tests");
     const test_run = b.addRunArtifact(main_tests);
     test_run.setCwd(b.path("."));
+    test_run.has_side_effects = true;
     test_step.dependOn(&test_run.step);
 }
